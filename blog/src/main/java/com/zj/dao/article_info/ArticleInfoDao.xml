@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zj.dao.article_info.ArticleInfoDao">
+
+
+    <!--建立sql查询的映射关系-->
+    <!--column是数据库字段名，property是java类中属性的字段名-->
+    <resultMap id="ArticleInfoMap" type="com.zj.domain.ArticleInfo">
+        <result column="id" property="id" />
+        <result column="title" property="title"/>
+        <result column="content" property="content"/>
+        <result column="content_text" property="contentText"/>
+        <result column="cover" property="cover"/>
+        <result column="view_count" property="viewCount"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="status" property="status"/>
+        <result column="type_id" property="typeId"/>
+
+        <result column="name" property="name"/>
+    </resultMap>
+    <!--查询所有文章-->
+    <select id="listNormal" resultMap="ArticleInfoMap">
+          select
+          ai.id,
+          ti.name,
+          ai.title,
+          ai.cover,
+          ai.update_time,
+          ai.view_count,
+          ai.content_text
+         from article_info as ai,type_info as ti
+         where ai.type_id=ti.id and status=1
+         ORDER BY ai.update_time DESC
+    </select>
+
+
+    <!--更新文章阅读量-->
+    <update id="updateViewCount">
+        update article_info set
+        view_count=view_count+1 where id=#{id}
+    </update>
+
+    <!--根据id查询文章信息-->
+    <select id="selectById" resultMap="ArticleInfoMap">
+         select * from article_info where id=#{id}
+    </select>
+
+    <!--新增文章-->
+    <insert id="insert" >
+         insert into article_info
+         (title,content,content_text,cover,view_count,update_time,status,type_id)
+         VALUES(#{title},#{content},#{contentText},#{cover},#{viewCount},#{updateTime},#{status},#{typeId})
+    </insert>
+
+    <!--更新文章-->
+    <update id="update">
+        update article_info set
+        title=#{title},content=#{content},content_text=#{contentText},cover=#{cover},view_count=#{viewCount},update_time=#{updateTime},status=#{status},type_id=#{typeId} where id=#{id}
+    </update>
+
+    <!--删除文章，原理是更新-->
+    <update id="delete">
+        update article_info set
+        status=0 where id=#{id}
+    </update>
+
+    <!--恢复删除的文章，原理是更新-->
+    <update id="recover">
+        update article_info set
+        status=1 where id=#{id}
+    </update>
+
+    <!--查询回收站文章-->
+    <select id="listNormal_out" resultMap="ArticleInfoMap">
+          select
+          ai.id,
+          ti.name,
+          ai.title,
+          ai.update_time,
+          ai.view_count,
+          ai.content_text
+         from article_info as ai,type_info as ti
+         where ai.type_id=ti.id and status=0
+         ORDER BY ai.update_time DESC
+    </select>
+</mapper>

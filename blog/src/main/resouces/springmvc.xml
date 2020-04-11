@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p"
+       xsi:schemaLocation="
+        http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/mvc
+        http://www.springframework.org/schema/mvc/spring-mvc.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd">
+
+    <!--注解扫描,只扫描Controller-->
+    <context:component-scan base-package="com.zj">
+        <context:include-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+    </context:component-scan>
+
+    <!--配置视图解析器对象-->
+    <bean id="internalResourceViewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <property name="prefix" value="/WEB-INF/page/"/>
+        <property name="suffix" value=".jsp"/>
+    </bean>
+
+ <!--   &lt;!&ndash;过滤静态资源&ndash;&gt;
+    <mvc:resources mapping="/css/**" location="static/css/"/>
+    <mvc:resources mapping="/js/**" location="static/js/"/>
+    <mvc:resources mapping="/images/**" location="static/images/"/>
+-->
+    <!--用json类型返给前台-->
+    <mvc:annotation-driven>
+        <mvc:message-converters register-defaults="true">
+            <bean
+                    class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter"
+                    p:supportedMediaTypes="*/*" />
+        </mvc:message-converters>
+    </mvc:annotation-driven>
+
+    <!--拦截器-->
+    <mvc:interceptors>
+        <mvc:interceptor>
+            <mvc:mapping path="/**" />
+            <mvc:exclude-mapping path="/admin/login.controller" />
+            <mvc:exclude-mapping path="/admin/login_json.controller" />
+            <mvc:exclude-mapping path="/portal/*"/>
+            <bean class="com.zj.interceptor.Interceptor"></bean>
+        </mvc:interceptor>
+    </mvc:interceptors>
+
+    <!--文件上传-->
+    <bean id="multipartResolver"
+          class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+        <!--上传文件的最大大小，单位为字节 -->
+        <property name="maxUploadSize" value="5242440"></property>
+
+        <!-- 上传文件的编码 -->
+        <property name="defaultEncoding" value="UTF-8"></property>
+    </bean>
+
+    <!--全局异常处理器-->
+    <bean class="com.zj.exception.GlobalException"></bean>
+
+    <mvc:default-servlet-handler/>
+    <!--开启springmvc注解的支持-->
+    <mvc:annotation-driven/>
+
+</beans>
